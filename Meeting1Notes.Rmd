@@ -1,0 +1,284 @@
+---
+title: "Meeting 1: R and Ebola"
+author: "Brooke Anderson"
+date: "November 7, 2014"
+output: ioslides_presentation
+---
+
+## 2014 Ebola outbreak
+
+```{r, echo = FALSE, message=FALSE}
+library(RCurl)
+github.page <- getURL("https://raw.githubusercontent.com/cmrivers/ebola/master/country_timeseries.csv")
+ebola <- read.csv(text = github.page, stringsAsFactors = FALSE)
+
+ebola$Date <- as.Date(ebola$Date, format = "%m/%d/%Y")
+
+library(reshape2)
+ebola <- melt(ebola, id.vars = c("Date", "Day"))
+
+ebola <- ebola[complete.cases(ebola), ]
+ebola$type <- gsub("_.*", "", ebola$variable)
+ebola$Country <- gsub(".*_", "", ebola$variable)
+ebola$Country <- ordered(ebola$Country, 
+                         levels = c("Liberia", "SierraLeone", 
+                                    "Guinea", "Nigeria", 
+                                    "UnitedStates", "Senegal", 
+                                    "Spain", "Mali"))
+
+library(ggplot2)
+library(scales)
+ggplot(ebola, aes(x = Date, y = value)) + 
+        geom_line(aes(colour = type), size = 1.3) +
+        xlab("Date in 2014") + 
+        ylab("Counts of cases or deaths") + 
+        ggtitle("Ebola cases and deaths, 2014 outbreak") + 
+        theme_bw() + 
+        scale_x_date(breaks = "3 months", minor_breaks = "1 month", 
+                     labels=date_format("%b")) + 
+        scale_y_continuous(labels = comma) + 
+        theme(legend.position="none") +
+        facet_grid(. ~ Country)
+```
+
+## First, catch your rabbit
+
+[GitHub](http://https:/github.com)
+
+Caitlin River's repo of data for the 2014 Ebola outbreak:
+
+[Caitlin River's Ebola repo](https://github.com/cmrivers/ebola)
+
+## First, catch your rabbit
+
+Basic approach: 
+
+- Download data to your computer
+- Make sure R is working in the directory with your data
+- Read data into R
+
+Fancier approach: 
+
+- Ask R to read data straight from GitHub
+
+# Full details of basic approach for beginners
+
+## Basic approach
+
+Step 1: 
+[Download](https://github.com/cmrivers/ebola/blob/master/country_timeseries.csv) the data to your computer.
+
+To download a datafile from GitHub, check out the ["Raw"](https://github.com/cmrivers/ebola/raw/master/country_timeseries.csv) button on the page...
+
+*Note: Make sure you save with the extension ".csv", and don't let your computer add on ".txt"*
+
+## Basic approach
+
+Step 2: 
+Anytime you work in R, R will run from within a directory somewhere on your computer. 
+
+Let's review directories: 
+
+<center><img src="Figures/korn0102.gif"></center>
+
+## Basic approach
+The default is usually your home directory (for example, mine is "/Users/brookeanderson"). You can easily change your working directory... 
+
+Once you open R, what is your working directory?
+
+```{r}
+getwd()
+setwd("/Users/brookeanderson")
+getwd()
+```
+
+## Basic approach
+
+Check your working directory now:
+
+```{r}
+getwd()
+```
+
+If you're in the right directory, you should see our data file if you list the files in the directory:
+
+```{r}
+list.files()
+```
+
+## Basic approach
+
+Step 3: Now we can read the data into R. It's a very basic command:
+
+```{r}
+ebola <- read.table("country_timeseries.csv", sep = ",",
+                    header = TRUE)
+ebola[1:3, 1:5]
+```
+
+But why does this work?
+
+## Basic approach
+
+R can read in data from *a lot* of different formats. 
+The only catch: you need to tell R how to do it.
+
+Most basically, we'll look at flat files:
+
+1. Fixed width files
+
+2. Delimited files 
+
+- ".csv": Comma-separated values
+- ".tab", ".tsv": Tab-separated values
+- Other possible delimiters: colon, semicolon, pipe ("|")
+
+See if you can identify what types of files the following files are...
+
+## What type of file?
+
+<center><img src="Figures/csvEx1.jpg"></center>
+
+## What type of file?
+
+<center><img src="Figures/fixedwidthfile.png"></center>
+
+## What type of file?
+
+<center><img src="Figures/pipeDelimited.png"></center>
+
+## What type of file?
+
+<center><img src="Figures/tabEx1.jpg"></center>
+
+## What type of file?
+
+<center><img src="Figures/csvEx2.jpg"></center>
+
+
+## What type of file?
+
+<center><img src="Figures/tabEx1.jpg"></center>
+
+## What type of file?
+
+<center><img src="Figures/fwfEx2.png"></center>
+
+## Basic approach
+
+R can read any of these types of files using one of the `read.table` and `read.fwf` functions. Find out more about those functions with:
+
+```{r, eval = FALSE}
+?read.table
+?read.fwf
+```
+
+## Basic approach
+
+Now let's read the data in and assign it (`<-`) to an object named `ebola`:
+
+```{r}
+ebola <- read.table("country_timeseries.csv", sep = ",",
+                    header = TRUE)
+```
+
+Notice that the function is `read.table`, and we've specified a value for the options `sep` and `header`. We'll talk about functions and options more later...
+
+*Question for you: What would have happened if we hadn't assigned the data we were reading in to `ebola`?*
+
+## Basic approach
+
+If this worked, you should have an object in your R session named `ebola`. You can check out the beginning of it:
+
+```{r}
+ebola[1:3, 1:5]
+```
+
+## Basic approach
+
+There are a number of other functions you can use to check out your data. For example, try:
+
+```{r, eval = FALSE}
+head(ebola)
+tail(ebola)
+summary(ebola)
+str(ebola)
+ebola[1,]
+```
+
+## Details of fancier approach
+
+## Fancier approach
+
+But, wait. **Everyone** is using GitHub for sharing data now. Surely there's a simpler way??
+
+**This is R. Of course there is!**
+
+## Fancier approach
+
+If you don't know how to do it, try Googling:
+
+["read data into r github"](https://www.google.com/search?client=safari&rls=en&q=read+data+into+r+github&ie=UTF-8&oe=UTF-8)
+
+Check out the first result:
+
+["data- Read a CSV from github into R - Stack Overflow"](http://stackoverflow.com/questions/14441729/read-a-csv-from-github-into-r)
+
+## Fancier approach
+
+It turns out that you can read it straight from GitHub using the `RCurl` package.
+
+If you don't have the package yet, you'll need to install it:
+
+```{r eval=FALSE}
+install.packages("RCurl")
+```
+
+Then, to use it in your R session, you'll need to call it:
+
+```{r}
+library(RCurl)
+```
+
+Now you have all the `RCurl` tools available in your session.
+
+## Fancier approach
+
+Now all it takes to read the data in is:
+
+```{r}
+github.page <- getURL("https://raw.githubusercontent.com/cmrivers/ebola/master/country_timeseries.csv")
+ebola.2 <- read.csv(text = github.page)
+```
+
+*Note: It runs off the page, but the full "https" for the `getURL` function is just [the web address of the raw data we want from GitHub](https://raw.githubusercontent.com/cmrivers/ebola/master/country_timeseries.csv):*
+
+
+## Fancier approach
+
+```{r}
+ebola.2[1:3, 1:5]
+```
+
+## What kind of data can you get into R?
+
+The sky is the limit...
+
+- [Tables on webpages](http://yihui.name/en/2010/10/grabbing-tables-in-webpages-using-the-xml-package/) (e.g., the table near the end of [this page](http://en.wikipedia.org/wiki/Ebola_virus_epidemic_in_West_Africa))
+- [Files from other statistical packages](http://www.statmethods.net/input/importingdata.html) (SAS, Excel, Stata, SPSS)
+- Data in a database (e.g., SQL)
+- Really crazy data formats used in other disciplines (e.g., [netCDF files from climate folks](https://www.image.ucar.edu/GSP/Software/Netcdf/), [MRI data stored in Analyze, NIfTI, and DICOM formats](http://www.tractor-mri.org.uk))
+- Data through APIs (e.g., [GoogleMaps](http://www.r-bloggers.com/heatmap-of-toronto-traffic-signals-using-rgooglemaps/), [Twitter](http://davetang.org/muse/2013/04/06/using-the-r_twitter-package/))
+- Incrediably messy data using `scan` and `readLines`
+
+Find out more in Chapter 3 of [The R Book](http://javanan.moe.gov.ir/getattachment/2b6d2d65-d767-4232-9a62-3ef2ea9245cf/The-R-Book--1-.aspx).
+
+# Challenges for the more advanced
+
+## Challenge 1
+
+GitHub user [BrcMapsTeam](https://github.com/BrcMapsTeam) has [geojson data on the locations of Ebola medical centers in West Africa](https://raw.githubusercontent.com/BrcMapsTeam/Ebola_2014_West_Africa_geojsons/master/Ebola_medical_centres_open_closed_pending.geojson) as well as [a link to a GoogleDocs dataset with the same information](https://docs.google.com/spreadsheets/d/1iR-JFC3CUykIHfw88Plvfoukvww6AZaf-EYYrOn_KYw/edit?pli=1#gid=1474657653). See if you can get this data into R from one of these two sources. 
+
+## Challenge 2
+
+GitHub user [evogytis](https://github.com/evogytis) has a repo called [ebolaGuinea2014](https://github.com/evogytis/ebolaGuinea2014) with `.nex` files with protein coding sequences from Ebola genomes. He ultimately is using this data for phylogenetic analysis of the Ebola outbreak in Guinea. See if you can read one of these files into R. Also, see if you can figure out what tools exist for doing phylogenetic analysis in R. 
