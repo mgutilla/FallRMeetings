@@ -1,5 +1,5 @@
 ---
-title: "Meeting 1: R and Ebola"
+title: 'Meeting 1: R and Ebola'
 author: "Brooke Anderson"
 date: "November 7, 2014"
 output: ioslides_presentation
