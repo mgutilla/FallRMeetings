@@ -1,0 +1,232 @@
+---
+title: "Meeting 2: R and Ebola"
+author: "Brooke Anderson"
+date: "November 14, 2014"
+output: ioslides_presentation
+---
+
+## Last time, we read in our data
+
+```{r}
+## If necessary, use setwd() to get to the right directory
+ebola <- read.table("country_timeseries.csv", sep = ",",
+                    header = TRUE)
+ebola[1:3, 1:5]
+```
+
+## Today's plan
+
+- Dataframes and vectors
+- Subsetting 
+- Functions
+- Example of a function-- the plot function
+
+# Dataframes and vectors
+
+## Dataframes and vectors
+
+A vector is a string of values:
+
+Example 1: Start of the vector of the dates when Ebola cases were reported
+```{r, echo = FALSE}
+as.character(ebola$Date[1:10])
+```
+
+Example 2: Start of the vector of number of cases reported in Guinea
+```{r, echo = FALSE}
+ebola$Cases_Guinea[1:10]
+```
+
+## Dataframes and vectors
+
+You can make a new vector using the concatenation vector, `c(...)`:
+
+```{r}
+x <- c(1, 5, 7, 9, 10)
+x
+class.names <- c("Taylor", "Maggie", "Mimi", "Brianna", "Jon")
+class.names
+```
+
+## Dataframes and vectors
+
+A dataframe is made up of a lot of vectors stuck together
+*(Notice how each column is a vector)*
+
+```{r, echo  = FALSE}
+ebola[1:10, 1:5]
+```
+
+## Dataframes and vectors
+
+You can make a new dataframe using the function `data.frame()`:
+
+```{r}
+class.data <- data.frame(name = class.names,
+                         number = x)
+class.data
+```
+
+# Subsetting
+
+## Subsetting
+
+You can use indexing (`[...]`, `[..., ...]`) to subset from a vector or dataframe, like:
+
+```{r, eval=FALSE}
+vector[locations]  ## Generic code
+dataframe[row locations, column locations] ## Generic code
+```
+
+## Subsetting
+
+A vector has one dimension, so you index without a comma (i.e., in one dimension):
+
+```{r}
+class.names[1]
+class.names[c(2, 3, 4)]  ## Equivalent: class.names[2:4]
+```
+
+## Subsetting
+
+A dataframe has two dimensions (rows and columns), so you index with a column:
+
+```{r}
+class.data[1,1]
+class.data[1:3, 1:2]
+```
+
+## Subsetting
+
+To get all values in a dimension (row or column), leave that part of the index blank:
+
+```{r}
+class.data[1, ]
+class.data[ , 1]
+```
+
+## Subsetting
+
+For columns, you can use column names instead of location:
+
+```{r}
+class.data[3:4, "number"]
+class.data[3:4, c("name", "number")]
+```
+
+## Subsetting
+
+You can also pull a column (vector) from a dataframe using `$`, like:
+
+```{r, eval=FALSE}
+dataframe$column.name  ## Generic code
+```
+
+For example, to get the column of `ebola` with cases from Guinea:
+```{r}
+head(ebola$Cases_Guinea)
+```
+
+*Note: I've used `head` to look at just the start of the vector since the whole thing would be really long.*
+
+## Now you try...
+
+Try to get the following vectors from the dataset:
+
+- Date
+- The ten most recent counts of cases in the US
+- The earliest twenty counts of deaths in Liberia
+- A dataframe of the first five observations of date, cases in Mali and deaths in Mali
+
+*Hint: Try using `colnames(ebola)` to find out the names of all the columns in `ebola`. Also, use `dim(ebola)` to find out the dimensions of the dataframe so you can get the index numbers right for the latest ten data points.*
+
+# Functions
+
+## Functions
+
+In general, functions in R take the following structure:
+
+```{r, eval = FALSE}
+function.name(required information, options)  ## Generic code
+```
+
+The result of the function will be output to your R session, unless you choose to save the output in an object:
+
+```{r, eval = FALSE}
+new.object <- function.name(required information, options)  ## Generic code
+```
+
+## Functions
+
+Examples of this structure:
+
+```{r, eval = FALSE}
+head(ebola)
+head(ebola, n = 3)
+ebola <- read.table("country_timeseries.csv", sep = ",",
+                    header = TRUE)
+```
+
+Find out more about a function by using `?function.name`. This will take you to the help page for the function, where you can find out all the possible arguments for the function, required and optional.
+
+# Example of a function
+
+## The `plot` function
+
+The plot function has two required arguments: the x coordinates of points in the plot, and the y coordinates of points in the plot. The generic structure is:
+
+```{r, eval=FALSE}
+plot(x = x coordinates, y = y coordinate)  ## Generic code
+```
+
+As long as you put the x coordinates first and the y coordinates second, you can leave out the `x = ` and `y = `:
+
+```{r, eval = FALSE}
+plot(x coordinates, y coordinate)  ## Generic code
+```
+
+## The `plot` function
+
+```{r, fig.width = 4.5, fig.height = 3.5, fig.align = "center"}
+x <- c(1, 2, 3)
+y <- c(4, 5, 6)
+plot(x, y)
+```
+
+
+## The `plot` function
+
+Now that you know how to pull out two vectors you want from the ebola dataset, you can plot them:
+
+```{r, fig.height = 4, fig.width = 5, fig.align = 'center'}
+plot(ebola$Day, ebola$Cases_Guinea)
+```
+
+## The `plot` function
+
+The plot function also has *many* optional arguments (check `?plot`, `?plot.default`). For example, 
+
+- `type`: What do you want to plot? Points (`"p"`)? Lines (`"l"`)?
+- `main`: Give a title to your plot (`"My title`")
+- `xlab`, `ylab`: Give nicer labels to your x- and y-axes (`xlab = "Day in Ebola data collection"`)
+- `xlim`, `ylim`: Specify the range of your x- and y- axes (`xlim = c(0, 100)`)
+
+## The `plot` function
+
+```{r, fig.height = 4, fig.width = 5, fig.align = 'center'}
+plot(ebola$Day, ebola$Cases_Guinea, main = "Guinea ebola cases",
+     xlab = "Day in ebola data collection", ylab = "# of cases",
+     type = "l", lwd = 2, col = "gray")
+```
+
+## Now you try...
+
+Try plotting:
+
+- Deaths in Liberia by day
+- Mortality rate in Liberia by day
+- Deaths in Liberia by date
+
+Experiment with options like `type`; `col`, `pch` and `cex` (when you're plotting points, `type = "p"`), `lwd` (when you're plotting lines, `type = "l"`), `main`, `sub`, `xlim`, and `ylim`.
+
+*Hint: Try using `colnames(ebola)` to find out the names of all the columns in `ebola`.*
